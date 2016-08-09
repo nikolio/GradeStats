@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+
+     <link rel="stylesheet" href="node_modules/angular-material/angular-material.css">
+
+     <script src="node_modules/angular/angular.js"></script>
+     <script src="node_modules/angular-aria/angular-aria.js"></script>
+     <script src="node_modules/angular-animate/angular-animate.js"></script>
+     <script src="node_modules/angular-material/angular-material.js"></script>
+
+     <script src="node_modules/ng-file-upload/dist/ng-file-upload-shim.js"></script> <!-- for no html5 browsers support -->
+     <script src="node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
+     <script lang="javascript" src="node_modules/xlsx/dist/xlsx.js"></script>
+     <script lang="javascript" src="node_modules/xlsx/dist/xlsx.core.min.js"></script>
+
+     <script lang="javascript" src="node_modules/xlsx/dist/cpexcel.js"></script>
+     <script lang="javascript" src="node_modules/nedb/index.js"></script>
+
+
+
+     <script src="app.js"></script>
+
+  </head>
+  <body ng-app="GradeStats">
+    We are using node <script>document.write(process.versions.node)</script>,
+    Chrome <script>document.write(process.versions.chrome)</script>,
+    and Electron <script>document.write(process.versions.electron)</script>.
+  <div ng-app="fileUpload" ng-controller="MyCtrl">
+      Drop File:
+      <div      style="
+       background: #F8F8F8;
+       border: 15px dashed #DDD;
+    height: 300px;
+    text-align: center;
+    padding-top: 25px;
+    margin: 10px;" ngf-drop ngf-no-object-url="true" ngf-select ng-model="files" class="drop-box"
+          ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
+          accept=".xls"
+          ngf-pattern=".xls">
+              <strong>Click here or drop  MS spredsheet for import</strong>
+            </div>
+      <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+      Files:
+      <ul>
+          <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}</li>
+      </ul>
+      Upload Log:
+      <pre>{{log}}</pre>
+
+      sheet {{json}}
+  </div>
+  </div>
+
+
+  </body>
+</html>
