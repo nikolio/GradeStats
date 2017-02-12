@@ -5,11 +5,12 @@
   "main": "main.js",
   "repository": { "type":"git", "url":"git://github.com/nikolio/GradeStats.git" },
   "scripts": {
-    "start": "node_modules/electron-prebuilt/dist/electron main.js"
+    "start": "node_modules/electron/dist/electron main.js"
   },
   "author": "nikolio",
   "license": "ISC",
   "dependencies": {
+    "electron": "^1.4.1",
     "angular": "^1.5.8",
     "angular-animate": "^1.5.8",
     "angular-aria": "^1.5.8",
