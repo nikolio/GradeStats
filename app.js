@@ -17,7 +17,6 @@ parseSpreadSheet = function(filePath) {
 importSpreadSheet = function (filePath) {
   workbook = parseSpreadSheet(filePath);
   json = spreadSheetToJson(workbook);
-  $scope.json = json;
   dbSaveImportedSpreadSheetDocument(json);
 }
 spreadSheetToJson = function (workbook) {
