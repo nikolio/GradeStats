@@ -1,13 +1,16 @@
 const {app, BrowserWindow} = require('electron')
  var XLSX = require("xlsx")
+ var os = require('os')
  var Datastore = require('nedb')
+ const nativeImage = require('electron').nativeImage
 let win
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 800, height: 600})
-
+if (os.type() == 'Linux') icon='/usr/share/icons/hicolor/64x64/apps/gradestats.png';
+if (os.type() == 'Windows_NT') icon='';
+win = new BrowserWindow({width: 800, height: 600, icon: nativeImage.createFromPath(icon)})
   // and load the index.html of the app.
-  win.loadURL(`file://${__dirname}/index.html`)
+  win.loadURL(`file://${__dirname}/../html/index.html`)
 
   // Open the DevTools.
   win.webContents.openDevTools()
@@ -38,7 +41,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+    if (win === null) {
     createWindow()
   }
 })

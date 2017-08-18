@@ -1,0 +1,25 @@
+<a ui-sref="import-file">
+<md-button aria-label="Import spreadsheet files" class="md-accent md-fab md-fab-bottom-right">
+  <md-icon md-svg-src="../../node_modules/material-design-icons/content/svg/production/ic_add_48px.svg"></md-icon>
+</md-button>
+</a>
+
+<a ui-sref="about">
+<md-button aria-label="Import spreadsheet files" class="md-accent md-fab md-fab-bottom-left">
+  <md-icon md-svg-src="../../node_modules/material-design-icons/action/svg/production/ic_info_outline_48px.svg"></md-icon>
+</md-button>
+</a>
+
+<md-content> <br>
+  <div class="md-accordion" ng-repeat="data in accordianData">
+    <md-toolbar ng-init="data.expanded = false" ng-click="data.expanded = !data.expanded">
+      <div class="md-toolbar-tools">
+        <h2>
+          <span>{{data.heading}}</span>
+        </h2>
+        <span flex=""></span>
+        <span ng-class="{expandCollapse:true, active:data.expanded}"></span>
+      </div>
+    </md-toolbar>
+    <div ng-class="{dataContent:true, activeContent:data.expanded}">{{data.content}}</div>
+</md-content>

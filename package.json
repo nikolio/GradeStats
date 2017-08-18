@@ -2,22 +2,63 @@
   "name": "gradestats",
   "version": "0.0.1",
   "description": "Import from xls spredsheets, store and analyze student grade data",
-  "main": "main.js",
-  "repository": { "type":"git", "url":"git://github.com/nikolio/GradeStats.git" },
-  "scripts": {
-    "start": "node_modules/electron/dist/electron main.js"
+  "main": "assets/js/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nikolio/GradeStats.git"
   },
-  "author": "nikolio",
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "start": "electron . -v",
+    "pack": "build --dir --verbose",
+    "dist": "build --ia32 --x64 --win --linux"
+  },
+  "author": "nikolio <nikolio@post.cz>",
   "license": "ISC",
+  "build": {
+    "appId": "nikolio",
+    "productName": "GradeStats",
+    "files": [
+      "**/*",
+      "![^*]*.xls",
+      "!package-lock.json",
+      "!README.md",
+      "!db${/*}"
+    ],
+    "copyright": "© 2016 - 2017 nikolio",
+    "linux": {
+      "icon": "assets/icons",
+      "target": [
+        "rpm",
+        "deb",
+        "AppImage"
+      ]
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/icon.ico"
+    },
+    "nsis": {
+      "license": "assets/license",
+      "artifactName": "${productName}-Installer-${version}-multiarch.${ext}"
+    }
+  },
   "dependencies": {
-    "electron": "^1.4.1",
     "angular": "^1.5.8",
     "angular-animate": "^1.5.8",
     "angular-aria": "^1.5.8",
     "angular-material": "^1.0.9",
     "angular-messages": "^1.5.8",
+    "angular-ui-router": "^1.0.3",
+    "hasha": "^3.0.0",
+    "material-design-icons": "^3.0.1",
     "nedb": "^1.8.0",
     "ng-file-upload": "^12.0.4",
+    "unoconv": "^0.1.2",
     "xlsx": "^0.8.0"
+  },
+  "devDependencies": {
+    "electron": "^1.4.1",
+    "electron-builder": "^19.19.1"
   }
 }
