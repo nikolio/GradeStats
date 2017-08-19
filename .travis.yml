@@ -4,6 +4,7 @@ install:
   bash
 - source ~/.profile
 - npm install
+- nvm use `node_version`
 - npm install node -g
 - sudo apt remove wine wine1.* -y && sudo apt autoremove -y
 - sudo add-apt-repository -y ppa:jonathonf/wine && sudo apt update
