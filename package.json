@@ -28,6 +28,7 @@
     "copyright": "© 2016 - 2017 nikolio",
     "linux": {
       "icon": "assets/icons",
+      "category":"Utility",
       "target": [
         "rpm",
         "deb",
