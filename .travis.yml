@@ -1,7 +1,12 @@
 language: node_js
 node_js: "8"
 install:
-- sudo apt install icnsutils rpm libstdc++6
+- LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
+- export LD_LIBRARY_PATH
+- sudo apt remove wine wine1.* -y && sudo apt autoremove -y
+- sudo add-apt-repository -y ppa:jonathonf/wine
+- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update
+- sudo apt install wine-stable icnsutils rpm libstdc++6 gcc-4.9 g++-4.9 -y
 #- wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh |
 #  bash
 #- source ~/.profile
@@ -10,9 +15,6 @@ install:
 #- export NODE_PATH=`which node`
 #- npm install node -g
 - npm install
-- sudo apt remove wine wine1.* -y && sudo apt autoremove -y
-- sudo add-apt-repository -y ppa:jonathonf/wine && sudo apt update
-- sudo apt install wine-stable -y
 - DEBUG=electron-builder:* npm run dist
 deploy:
   provider: releases
