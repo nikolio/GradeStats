@@ -3,9 +3,9 @@ install:
 - wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh |
   bash
 - source ~/.profile
-- npm install
-- nvm use `node_version`
+- export NODE_PATH=`which node`
 - npm install node -g
+- npm install
 - sudo apt remove wine wine1.* -y && sudo apt autoremove -y
 - sudo add-apt-repository -y ppa:jonathonf/wine && sudo apt update
 - sudo apt install wine-stable -y
