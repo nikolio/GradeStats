@@ -40,6 +40,10 @@
     },
     "nsis": {
       "license": "assets/license",
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
       "artifactName": "${productName}-Installer-${version}-multiarch.${ext}"
     }
   },

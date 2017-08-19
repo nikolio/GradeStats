@@ -1,0 +1,18 @@
+install:
+- sudo apt install icnsutils rpm
+- wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh |
+  bash
+- source ~/.profile
+- npm install
+- sudo apt remove wine wine1.* -y && sudo apt autoremove -y
+- sudo add-apt-repository -y ppa:jonathonf/wine && sudo apt update
+- sudo apt install wine-stable -y
+- DEBUG=electron-builder npm run dist
+deploy:
+  provider: releases
+  api_key:
+    secure: BQE9mDmt4rBqIvEUXPu9Um3tSK5gUrH85Ni+jOIZ9AZvQO1pGE6VsIppBBn6vrkj77MsV5ilCC11n/Qoux9To5Wct7m84iOyxrvArtyLnG9fc3K8jMPyWvi8SNh9RkaqS0AxFrUT3phZcnKemEt1W6fv7CNhpe+21JBJ7+RtyRd3Xcc+LVZrWcAEU+lWX1IVxwT3pPxI2xjPHbwFK3Jq3S4TSzlcCUaipGtl71kdz40L622N5xZ1pkWn68wBY565EoSXSNuWJ44TD/VPEn3lA0I1TbB15G1boosMvzSyTKFmlwpJMHQr7woj3mYfmEoCwnXdaPA3RueclPFNcBRpfmTjeFo/51VWmeFcAKoqxB/4tuE9qDHmQP6/W6iuDRV1q7xff03VIjPUc4OVZAML0CP7v/FcBXhqWMFwJJtgWzQz9a4AMpANxaDL4nAMgcQRFvHEs3WNXjTA3yT42SYME/RmSAtyFxdeaywEJ1DDoWh9oN22WRDfY+gPE2WnXNOcAYMi5ob492uOSD3kGTJYzOjXUAiysOlOa8RELKtrcEfHMuORrqqNc9WpdyhHFbI/WKGUq1aOSl+c3D4k/mJgTZz7k7+AQ5hQnY3Ynp/yQFrYenksBAke9ZRsrSfIjXJGcSZjpRruYhXpqtpfVVCzdpega9FWMQLn4hC8x9+ZYSs=
+  file: dist/{gradestats_0.0.1_amd64.deb,gradestats_0.0.1_i386.deb,gradestats-0.0.1.i686.rpm,gradestats-0.0.1.x86_64.rpm,gradestats-0.0.1-i386.AppImage,gradestats-0.0.1-x86_64.AppImage,GradeStats-Installer-0.0.1-multiarch.exe}
+  skip_cleanup: true
+  on:
+    repo: nikolio/GradeStats
