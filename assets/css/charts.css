@@ -1,0 +1,12 @@
+.chart-container {
+  height: 600px;
+  overflow-y:auto;
+  margin:0 auto;
+}
+.table {
+  display: table
+}
+.table-cell {
+  display: table-cell;
+  vertical-align: middle;
+}

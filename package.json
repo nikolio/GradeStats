@@ -1,6 +1,6 @@
 {
   "name": "gradestats",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Import from xls spredsheets, store and analyze student grade data",
   "main": "assets/js/main.js",
   "repository": {
@@ -28,7 +28,7 @@
     "copyright": "© 2016 - 2017 nikolio",
     "linux": {
       "icon": "assets/icons",
-      "category":"Utility",
+      "category": "Utility",
       "target": [
         "rpm",
         "deb",
@@ -59,6 +59,7 @@
     "material-design-icons": "^3.0.1",
     "nedb": "^1.8.0",
     "ng-file-upload": "^12.0.4",
+    "plotly.js": "^1.29.3",
     "unoconv": "^0.1.2",
     "xlsx": "^0.8.0"
   },

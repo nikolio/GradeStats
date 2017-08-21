@@ -2,6 +2,7 @@ var XLSX = require("xlsx")
 const hasha = require('hasha');
 const path = require('path');
 var Datastore = require('nedb')
+var Plotly = require('plotly.js/dist/plotly-with-meta.js');
 db = new Datastore({ filename: `${__dirname}/../../db/gradeStats.db`, autoload: true });
 importedFilesDb = new Datastore({ filename: `${__dirname}/../../db/importedFiles.db`, autoload: true });
 var gradeStats = angular.module('GradeStats', ['ngMaterial', 'ngFileUpload', 'ui.router']);
@@ -19,15 +20,22 @@ gradeStats.config(function($stateProvider, $urlRouterProvider){
     templateUrl:'../html/partials/about.html',
     controller: 'AboutController'
   }
-  var StudentsState = {
+  var studentsState = {
     name: 'students',
     url: '/students',
     templateUrl:'../html/partials/studentInfo.html',
     controller: 'StudentInfoController'
   }
+  var chartState = {
+    name: 'charts',
+    url: '/charts',
+    templateUrl:'../html/partials/charts.html',
+    controller: 'ChartController'
+  }
   $stateProvider.state(importFileState);
   $stateProvider.state(aboutState);
-  $stateProvider.state(StudentsState);
+  $stateProvider.state(studentsState);
+  $stateProvider.state(chartState);
   $urlRouterProvider.otherwise('/import-file');
 });
 dbInsert = function (db, document) {
@@ -105,6 +113,69 @@ gradeStats.controller('AboutController', ['$scope', function($scope) {
   $scope.chrome=process.versions.chrome;
   $scope.electron=process.versions.electron;
   $scope.node= process.versions.node;
+}]);
+gradeStats.controller('ChartController', ['$scope', function($scope) {
+    var studentCourseStatsData = [
+      {
+        x: [2007, 2008, 2009],
+        y: [6, 10, 2],
+        error_y: {
+          type: 'data',
+          array: [1, 2, 3],
+          visible: true
+        },
+        type: 'scatter'
+      }
+    ];
+    var studentCourseStatsLayout = {
+      title: 'Course statistics graph',
+      yaxis: {title: 'Average grade of all student in the course'},
+      xaxis: {title: 'Exam period',
+              type: 'category'
+              }
+    };
+    var modeBarButtonOptions = {
+      modeBarButtonsToRemove: [ 'sendDataToCloud'],
+      displaylogo: false
+    };
+    Plotly.newPlot('studentCourseStats', studentCourseStatsData, studentCourseStatsLayout, modeBarButtonOptions);
+
+    // y axis 0.40 is like 40 %
+    var examStatsData = [
+      {
+        type: 'bar',
+        x: [1, 2, 3, 5.5, 10],
+        y: [0.40, 0.15, 0.05, 0.31, 0.04]
+      }
+    ];
+    var examStatsLayout = {
+      title: 'Exam period Jan 2017',
+      yaxis: {
+              title: 'Students percentage',
+              tickformat: ',.0%',
+              range: [0,1]
+            },
+      xaxis: {title: 'Grades'}
+    };
+    Plotly.plot('examStats', examStatsData, examStatsLayout, modeBarButtonOptions);
+
+    var studentsSuccessStatsData = [
+      {
+        type: 'bar',
+        x: [1, 2, 3, 5, 10],
+        y: [0.40, 0.15, 0.05, 0.31, 0.04]
+      }
+    ];
+    var studentsSuccessStatsLayout = {
+      title: 'Students success in a course',
+      yaxis: {
+              title: 'Students percentage',
+              tickformat: ',.0%',
+              range: [0,1]
+            },
+      xaxis: {title: 'Success after exam period'}
+    };
+    Plotly.plot('studentsSuccessStats', studentsSuccessStatsData, studentsSuccessStatsLayout, modeBarButtonOptions);
 
 }]);
 gradeStats.controller('StudentInfoController', ['$scope', function($scope) {
