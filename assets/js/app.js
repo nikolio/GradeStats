@@ -1,42 +1,70 @@
 var XLSX = require("xlsx")
-const hasha = require('hasha');
-const path = require('path');
+const hasha = require('hasha')
+const path = require('path')
 var Datastore = require('nedb')
-var Plotly = require('plotly.js/dist/plotly-with-meta.js');
-db = new Datastore({ filename: `${__dirname}/../../db/gradeStats.db`, autoload: true });
-importedFilesDb = new Datastore({ filename: `${__dirname}/../../db/importedFiles.db`, autoload: true });
+var Plotly = require('plotly.js/dist/plotly-with-meta.js')
+var base64 = require('base-64')
+var utf8 = require('utf8')
 var gradeStats = angular.module('GradeStats', ['ngMaterial', 'ngFileUpload', 'ui.router']);
 // setting the different states for the application
 gradeStats.config(function($stateProvider, $urlRouterProvider){
-  var importFileState = {
-    name: 'import-file',
-    url: '/import-file',
-    templateUrl:'../html/partials/spreadSheetImport.html',
-    controller: 'ImportController'
+  setApplicationStates = function () {
+    var importFileState = {
+      name: 'import-file',
+      url: '/import-file',
+      templateUrl:'../html/partials/spreadSheetImport.html',
+      controller: 'ImportController'
+    }
+    var aboutState = {
+      name: 'about',
+      url: '/about',
+      templateUrl:'../html/partials/about.html',
+      controller: 'AboutController'
+    }
+    var studentsState = {
+      name: 'students',
+      url: '/students',
+      templateUrl:'../html/partials/studentInfo.html',
+      controller: 'StudentInfoController'
+    }
+    var chartState = {
+      name: 'charts',
+      url: '/charts',
+      templateUrl:'../html/partials/charts.html',
+      controller: 'ChartController'
+    }
+    $stateProvider.state(importFileState);
+    $stateProvider.state(aboutState);
+    $stateProvider.state(studentsState);
+    $stateProvider.state(chartState);
+    $urlRouterProvider.otherwise('/import-file');
   }
-  var aboutState = {
-    name: 'about',
-    url: '/about',
-    templateUrl:'../html/partials/about.html',
-    controller: 'AboutController'
+  initializeDatabases = function() {
+    dbEncode = function (doc) {
+      var bytes = utf8.encode(doc)
+      return base64.encode(bytes)
+    }
+    dbDecode = function (doc) {
+      var bytes = utf8.decode(doc)
+      return base64.decode(bytes)
+    }
+    var gradeStats = {
+      filename: `${__dirname}/../../db/gradeStats.db`,
+      autoload: true,
+      afterSerialization: doc => dbEncode(doc),
+      beforeDeserialization: doc => dbDecode(doc)
+    }
+    var importedFiles = {
+      filename: `${__dirname}/../../db/importedFiles.db`,
+      autoload: true,
+      afterSerialization: doc => dbEncode(doc),
+      beforeDeserialization: doc => dbDecode(doc)
+    }
+    db = new Datastore(gradeStats);
+    importedFilesDb = new Datastore(importedFiles);
   }
-  var studentsState = {
-    name: 'students',
-    url: '/students',
-    templateUrl:'../html/partials/studentInfo.html',
-    controller: 'StudentInfoController'
-  }
-  var chartState = {
-    name: 'charts',
-    url: '/charts',
-    templateUrl:'../html/partials/charts.html',
-    controller: 'ChartController'
-  }
-  $stateProvider.state(importFileState);
-  $stateProvider.state(aboutState);
-  $stateProvider.state(studentsState);
-  $stateProvider.state(chartState);
-  $urlRouterProvider.otherwise('/import-file');
+  setApplicationStates()
+  initializeDatabases()
 });
 dbInsert = function (db, document) {
   console.log('inserting document');
@@ -192,6 +220,7 @@ gradeStats.controller('StudentInfoController', ['$scope', function($scope) {
 
 } ]);
 gradeStats.controller('ImportController', ['$scope', function ($scope) {
+
   $scope.$watch('files', function () {
     $scope.import($scope.files);
   });
@@ -201,7 +230,12 @@ gradeStats.controller('ImportController', ['$scope', function ($scope) {
     }
   });
   $scope.import = function (files) {
+    var data="file";
+    var encoded = base64.encode(data)
+    var decoded = base64.decode(encoded)
     if (files && files.length) {
+      console.log(decoded)
+
       console.log(files[0].path);
       for (var i = 0; i < files.length; i++) {
         var file = files[i];

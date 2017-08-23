@@ -55,12 +55,14 @@
     "angular-material": "^1.0.9",
     "angular-messages": "^1.5.8",
     "angular-ui-router": "^1.0.3",
+    "base-64": "^0.1.0",
     "hasha": "^3.0.0",
     "material-design-icons": "^3.0.1",
     "nedb": "^1.8.0",
     "ng-file-upload": "^12.0.4",
     "plotly.js": "^1.29.3",
     "unoconv": "^0.1.2",
+    "utf8": "^2.1.2",
     "xlsx": "^0.8.0"
   },
   "devDependencies": {
