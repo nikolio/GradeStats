@@ -3,17 +3,54 @@ const hasha = require('hasha')
 const path = require('path')
 var Datastore = require('nedb')
 var Plotly = require('plotly.js/dist/plotly-with-meta.js')
-var base64 = require('base-64')
-var utf8 = require('utf8')
-var gradeStats = angular.module('GradeStats', ['ngMaterial', 'ngFileUpload', 'ui.router']);
-// setting the different states for the application
-gradeStats.config(function($stateProvider, $urlRouterProvider){
+var base64 = require('js-base64').Base64;
+var gradeStats = angular.module('GradeStats', ['ngMaterial', 'ngFileUpload', 'ui.router', 'ngResource']);
+gradeStats.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider){
+  // sts a dark theme for md-content
+  $mdThemingProvider.theme('docs-dark', 'default')
+  .primaryPalette('blue')
+  .dark();
+
+  initializeDatabases = function() {
+    dbEncode = function (doc) {
+      return base64.encode(doc)
+    }
+    dbDecode = function (doc) {
+      return base64.decode(doc)
+    }
+    var path = `${__dirname}/../../db/`
+    var options = {
+      autoload: true ,
+      afterSerialization: doc => dbEncode(doc),
+      beforeDeserialization: doc => dbDecode(doc)
+    }
+    var gradeStats= Object.create(options);
+    gradeStats.filename = path + 'gradeStats.db'
+
+    var importedFiles =  Object.create(options);
+    importedFiles.filename = path + 'importedFiles.db'
+
+    var institution = Object.create(options);
+    institution.filename = path + 'institution.db'
+
+    db = new Datastore(gradeStats)
+    importedFilesDb = new Datastore(importedFiles)
+    institutionDb = new Datastore(institution)
+  }
+  initializeDatabases()
+  dbInsertInstitution()
+
+  // setting the different states for the application
   setApplicationStates = function () {
     var importFileState = {
       name: 'import-file',
       url: '/import-file',
       templateUrl:'../html/partials/spreadSheetImport.html',
-      controller: 'ImportController'
+      controller: 'ImportController',
+      resolve: {
+                courses: function() {
+                                      return getAllCourses()
+                                    }}
     }
     var aboutState = {
       name: 'about',
@@ -39,32 +76,7 @@ gradeStats.config(function($stateProvider, $urlRouterProvider){
     $stateProvider.state(chartState);
     $urlRouterProvider.otherwise('/import-file');
   }
-  initializeDatabases = function() {
-    dbEncode = function (doc) {
-      var bytes = utf8.encode(doc)
-      return base64.encode(bytes)
-    }
-    dbDecode = function (doc) {
-      var bytes = utf8.decode(doc)
-      return base64.decode(bytes)
-    }
-    var gradeStats = {
-      filename: `${__dirname}/../../db/gradeStats.db`,
-      autoload: true,
-      afterSerialization: doc => dbEncode(doc),
-      beforeDeserialization: doc => dbDecode(doc)
-    }
-    var importedFiles = {
-      filename: `${__dirname}/../../db/importedFiles.db`,
-      autoload: true,
-      afterSerialization: doc => dbEncode(doc),
-      beforeDeserialization: doc => dbDecode(doc)
-    }
-    db = new Datastore(gradeStats);
-    importedFilesDb = new Datastore(importedFiles);
-  }
   setApplicationStates()
-  initializeDatabases()
 });
 dbInsert = function (db, document) {
   console.log('inserting document');
@@ -73,6 +85,72 @@ dbInsert = function (db, document) {
     // newDoc has no key called notToBeSaved since its value was undefined
     if(err!=null) console.log(err);
   });
+}
+/*
+//The json structure of the institution
+{
+name: 'the name of the university',
+departments: {
+  name: 'the name of the department',
+  courses: {
+    {
+      "courseName": {
+        courseName:"the course name",
+        courseType:"Laboratory or Theory course"
+      }
+    }
+  }
+},
+_id: "id of the university (sha512sum of the university Name)"
+}
+*/
+dbInsertInstitution = function() {
+  //setting up a university object with test
+  // data and saving in into the database (institution.db)
+
+  var universityName = 'The University'
+  var departmentName = 'The Department'
+  var courseName = 'Physics'
+  var courseType = 'Laboratory'
+
+
+  var university = {};
+  //sets the university name
+  university.name = universityName
+
+
+  university.departments = {};
+  //sets the department name
+  university.departments[departmentName] = {};
+
+
+  courses = {};
+
+  var course = {
+                name: courseName,
+                type: courseType
+              }
+  //sets the course name and the courses object
+  courses[courseName] = course;
+  var secondCourseName = 'Calculus'
+  var secondCourse = {
+                      name: 'Calculus',
+                      type: 'Theory'
+  }
+  var thirdCourseName= 'Statistics'
+  var thirdCourse = {
+                      name: 'Statistics',
+                      type: 'Theory'
+  }
+  courses[secondCourseName] = secondCourse
+  courses[thirdCourseName] = thirdCourse
+  //adds the course in the department
+  university.departments["The Department"].courses = courses;
+  //sets the university's unique id to the sha512sum of the university's name
+  university._id=calculateStringSum(universityName);
+  console.log(university)
+  //insert the university to the database
+  dbInsert(institutionDb, university)
 }
 dbSaveImportedSpreadSheetDocument = function (db, document) {
   dbInsert(db, document);
@@ -84,17 +162,63 @@ parseSpreadSheet = function(filePath) {
   var workbook = XLSX.readFile(filePath);
   return workbook;
 }
+getDepartmentCourses = function (department) {
+  var courses = '';
+  var departmentCourses = department.courses
+  console.log(departmentCourses)
+  Object.keys(departmentCourses).forEach(function(key) {
+      var t = departmentCourses[key]
+      if (key = 'name') courses=courses + ' ' + t[key]
+      if (key = 'type') courses=courses + '-'+ t[key]
+  });
+  //return and remove whitespace from the beginning of the courses string
+  return courses.replace(/^\s+/g, '');
+}
+getDepartment = function(doc) {
+  var departmentName = 'The Department'
+  var department = doc['0'].departments[departmentName]
+  //gets all courses from a department
+  courses = getDepartmentCourses(department)
+  return courses
+}
+getUniversity = function() {
+  //setting up with test data
+  var universityName = 'The University'
+  var courseName = 'Physics'
+  var departmentName = 'The Department'
+  var university= {};
+  var property = `departments.${departmentName}.courses.${courseName}.name`
+  return new Promise(function(resolve, reject) {
+    institutionDb.find({[property]: courseName}, function (err, docs) {
+      if (err) {
+        reject(err)
+      } else {
+         resolve(docs)
+      }
+    });
+  });
+}
+getAllCourses = function () {
+  return new Promise(function(resolve, reject) {
+    getUniversity().catch( error => {reject(error)})
+    .then(university => getDepartment(university))
+    .then(courses => {resolve(courses)})
+  })
+}
+calculateStringSum = function(str) {
+  return hasha(str, {algorithm: 'sha512'});
+}
 calculateFileSum = function (filePath) {
   return hasha.fromFile(filePath, {algorithm: 'sha512'});
 }
 dbSaveSpreadSheet = function(filePath, spreadSheet) {
   calculateFileSum(filePath).then(hash => {
-    var importedFile = { _id: hash
-                 , filename: path.basename(filePath)
-                 , importTime: new Date()
-              };
-    var studentData = { _id: hash
-                        , studentData: JSON.parse(spreadSheet)
+    var importedFile = { _id: hash,
+                          filename: path.basename(filePath),
+                          importTime: new Date()
+                        };
+    var studentData = { _id: hash,
+                        studentData: JSON.parse(spreadSheet)
                       };
       dbSaveImportedSpreadSheetDocument(db, studentData)
       dbSaveImportedFileInfo(importedFilesDb, importedFile)
@@ -162,6 +286,7 @@ gradeStats.controller('ChartController', ['$scope', function($scope) {
               type: 'category'
               }
     };
+    //disabling some not so useful buttons
     var modeBarButtonOptions = {
       modeBarButtonsToRemove: [ 'sendDataToCloud'],
       displaylogo: false
@@ -219,8 +344,12 @@ gradeStats.controller('StudentInfoController', ['$scope', function($scope) {
      ];
 
 } ]);
-gradeStats.controller('ImportController', ['$scope', function ($scope) {
-
+gradeStats.controller('ImportController', ['$scope', 'courses', function ($scope, courses) {
+  $scope.data='file.xls'
+  //()'RW ZX QA FC'+ ' ' + courses)
+  $scope.courses = (courses).split(' ').map(function(course) {
+    return {abbrev: course};
+  });
   $scope.$watch('files', function () {
     $scope.import($scope.files);
   });
@@ -229,13 +358,11 @@ gradeStats.controller('ImportController', ['$scope', function ($scope) {
       $scope.files = [$scope.file];
     }
   });
+  $scope.$watch('course', function () {
+    if ($scope.course != null) console.log($scope.course)
+  });
   $scope.import = function (files) {
-    var data="file";
-    var encoded = base64.encode(data)
-    var decoded = base64.decode(encoded)
     if (files && files.length) {
-      console.log(decoded)
-
       console.log(files[0].path);
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
